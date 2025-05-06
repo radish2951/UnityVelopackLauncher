@@ -67,12 +67,14 @@ This project provides the **minimum C# launcher code** required to get Velopack 
     *   **Replace the original Unity executable** (e.g., `MyUnityGame.exe`) with the launcher executable you built in step 4 (e.g., `YourProductName.exe`). Make sure to rename your built launcher to match the original Unity executable's name.
     *   Ensure `UnityPlayer.dll` is in the same directory as your new launcher executable. The launcher expects `UnityPlayer.dll` to be in its immediate vicinity.
 
-6.  **Implement Update Logic in Your Unity Application:**
-    *   This launcher (`Launcher.cs`) handles the **initialization** of Velopack via `VelopackApp.Build().Run()`. This is crucial because it allows Velopack to manage its hooks and startup processes before Unity takes over.
-    *   The actual logic for checking for updates, downloading them, and applying them (e.g., using `UpdateManager`) needs to be implemented **within your Unity application's C# scripts**.
-    *   Since Velopack is initialized in the same process as your Unity game (this launcher loads `UnityPlayer.dll` in-process), you should be able to use Velopack's C# API directly from your Unity scripts.
-    *   For examples and best practices on how to use the Velopack C# API within a Unity context (including handling updates and application restarts), please consult the official Velopack documentation and their Unity sample project. **See the [References](#references) section below for direct links.** The `CSharpUnityMono` sample is particularly helpful for understanding how to call Velopack APIs from Unity scripts and handle specific Unity considerations (like using `Application.Quit()` with `WaitExitThenApplyUpdates`).
-    *   Essentially, this launcher sets the stage for Velopack; your Unity code then takes over to manage the update lifecycle.
+6.  **Leveraging Velopack in Your Unity Application (optionally):**
+    *   This launcher (`Launcher.cs`) performs the crucial step of initializing Velopack via `VelopackApp.Build().Run()` **before** your Unity application starts. This is the primary function of this template.
+    *   **With Velopack initialized by this launcher, your Unity application is now ready to utilize any of Velopack's features.**
+    *   For example, you can:
+        *   Use the `vpk` command-line tool to create installers and releases for your application.
+        *   Implement in-app update checking and application logic using Velopack's C# API from your Unity scripts.
+    *   How you choose to use Velopack beyond this initial setup is up to your project's needs.
+    *   **For detailed guidance on using Velopack's C# API, creating packages, implementing update logic, and other features, please refer to the official Velopack documentation and their Unity sample project.** See the [References](#references) section below for direct links.
 
 ## Project Structure
 

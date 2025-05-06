@@ -1,0 +1,106 @@
+# Unity Velopack Launcher
+
+A template project to create a custom launcher for Unity applications, enabling self-updating capabilities through [Velopack](https://velopack.io/). This launcher dynamically loads `UnityPlayer.dll` and calls the `UnityMain` function. Crucially, it initializes Velopack **before** the Unity engine starts, which is a necessary step for Velopack to function correctly with Unity.
+
+This project provides the **minimum C# launcher code** required to get Velopack initialized in a way that's compatible with a standard Unity build. The actual update checking, downloading, and applying logic within your Unity application needs to be implemented by you, leveraging the Velopack C# API.
+
+## Features
+
+*   Integrates Velopack initialization into a standalone C# launcher, executed before Unity starts.
+*   Dynamically loads and runs your Unity application.
+*   Provides the foundation for your Unity application to use Velopack APIs.
+*   Acts as a template for building a custom launcher tailored to your Unity project.
+
+## Prerequisites
+
+*   **.NET SDK:** You need the .NET SDK (version 8.0 or later recommended) installed on your development machine to build the launcher. You can download it from [here](https://dotnet.microsoft.com/download).
+*   **Unity Project:** A built Unity application (Windows x64, using the Mono scripting backend is generally recommended for easier `System.Diagnostics.Process` API usage if needed by Velopack or your update logic. See Velopack's Unity documentation for IL2CPP considerations).
+
+## How to Use
+
+1.  **Clone or Download:**
+    *   Clone this repository or download it as a ZIP.
+    *   `git clone https://github.com/radish2951/UnityVelopackLauncher.git`
+
+2.  **Customize Project Settings:**
+    *   Open `Launcher.csproj` in a text editor or IDE.
+    *   Update the following placeholder properties with your application's information:
+        *   `<AssemblyName>YourProductName</AssemblyName>` (e.g., `MyAwesomeGame`)
+        *   `<Company>YourCompanyName</Company>`
+        *   `<Product>YourProductName</Product>` (e.g., `My Awesome Game`)
+        *   `<Description>Your product description here</Description>`
+        *   `<Copyright>Copyright (C) 2025 YourCompanyName</Copyright>`
+    *   Open `Launcher.manifest`.
+    *   Update the following placeholders:
+        *   `<assemblyIdentity name="YourCompany.YourAwesomeGame.Launcher" ... />` (e.g., `MyCompany.MyAwesomeGame.Launcher`)
+        *   `<description>Your application description here</description>`
+    *   Replace `Launcher.ico` with your application's icon file. Ensure it's named `Launcher.ico` or update the `<ApplicationIcon>` tag in `Launcher.csproj` accordingly.
+
+3.  **Install Velopack Package:**
+    *   Open a terminal or command prompt in the `UnityVelopackLauncher` directory (where `Launcher.csproj` is located).
+    *   Run the following command to add the Velopack NuGet package to the project:
+        ```bash
+        dotnet add package Velopack
+        ```
+        This ensures the necessary Velopack libraries are included for the launcher.
+
+4.  **Build the Launcher:**
+    *   Open a terminal or command prompt in the `UnityVelopackLauncher` directory.
+    *   Run the publish command to create a single, self-contained executable:
+        ```bash
+        dotnet publish Launcher.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+        ```
+        *   `-c Release`: Builds in Release configuration.
+        *   `-r win-x64`: Targets Windows x64.
+        *   `--self-contained true`: Includes the .NET runtime with the executable.
+        *   `/p:PublishSingleFile=true`: Creates a single executable file.
+
+    *   The published executable will be located in a subfolder within `bin/Release/net8.0-windows/win-x64/publish/`. For example:
+        `UnityVelopackLauncher/bin/Release/net8.0-windows/win-x64/publish/YourProductName.exe` (The name will be what you set in `<AssemblyName>`).
+
+5.  **Integrate with Your Unity Build:**
+    *   Build your Unity project for Windows x64 as usual.
+    *   Navigate to your Unity build's output directory (e.g., `Build/`).
+    *   You will find your original Unity executable (e.g., `MyUnityGame.exe`) and a `*_Data` folder (e.g., `MyUnityGame_Data/`).
+    *   **Replace the original Unity executable** (e.g., `MyUnityGame.exe`) with the launcher executable you built in step 4 (e.g., `YourProductName.exe`). Make sure to rename your built launcher to match the original Unity executable's name.
+    *   Ensure `UnityPlayer.dll` is in the same directory as your new launcher executable. The launcher expects `UnityPlayer.dll` to be in its immediate vicinity.
+
+6.  **Implement Update Logic in Your Unity Application:**
+    *   This launcher (`Launcher.cs`) handles the **initialization** of Velopack via `VelopackApp.Build().Run()`. This is crucial because it allows Velopack to manage its hooks and startup processes before Unity takes over.
+    *   The actual logic for checking for updates, downloading them, and applying them (e.g., using `UpdateManager`) needs to be implemented **within your Unity application's C# scripts**.
+    *   Since Velopack is initialized in the same process as your Unity game (this launcher loads `UnityPlayer.dll` in-process), you should be able to use Velopack's C# API directly from your Unity scripts.
+    *   **For examples and best practices on how to use the Velopack C# API within a Unity context (including handling updates and application restarts), please refer to:**
+        *   **Velopack's official C# documentation:** [Getting Started with .NET](https://docs.velopack.io/getting-started/csharp)
+        *   **Velopack's Unity Sample Project:** [CSharpUnityMono Sample](https://github.com/velopack/velopack/tree/develop/samples/CSharpUnityMono) (This sample demonstrates a more complete integration, including how to call Velopack APIs from Unity scripts and handle specific Unity considerations like `Application.Quit()` with `WaitExitThenApplyUpdates`).
+    *   Essentially, this launcher sets the stage for Velopack; your Unity code then takes over to manage the update lifecycle.
+
+## Project Structure
+
+```
+UnityVelopackLauncher/
+├── Launcher.cs # Main launcher code (C#) - Handles Velopack init and Unity launch
+├── Launcher.csproj # C# project file
+├── Launcher.manifest # Application manifest for Windows
+├── Launcher.ico # Application icon
+├── LICENSE # Project license
+└── README.md # This file
+```
+
+## How it Works
+
+1.  The `Main` method in `Launcher.cs` is the entry point.
+2.  `VelopackApp.Build().Run()`: Initializes Velopack. This is the **key step** provided by this launcher. It handles Velopack's startup tasks, including checking for pending updates from a previous run and applying them if necessary. If an update was just applied and a restart is needed, Velopack handles it before your custom Unity launch code is executed.
+3.  If no update-related restart by Velopack occurs, the launcher proceeds to:
+    *   Load `UnityPlayer.dll` from the same directory.
+    *   Get the address of the `UnityMain` function within `UnityPlayer.dll`.
+    *   Call `UnityMain` to start the Unity engine, passing necessary arguments.
+4.  Your Unity application then runs. It is now **your responsibility** to implement the logic using Velopack's C# API (e.g., `UpdateManager`) to check for new updates, download them, and trigger the update process (e.g., via `updateManager.WaitExitThenApplyUpdates(...)` followed by `UnityEngine.Application.Quit()`).
+5.  Error handling is in place in the launcher to display messages if `UnityPlayer.dll` cannot be loaded or `UnityMain` cannot be found.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue.

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Application manifest for Windows.
+  Update the placeholders (YourCompanyName, YourProductName, YourAppName, etc.) as needed.
+-->
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <!-- Assembly identity: update name as needed -->
+  <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="YourCompany.YourAwesomeGame.Launcher" type="win32"/>
+  <!-- Application description -->
+  <description>Your application description here</description>
+  <!-- Dependency on Windows common controls (for modern visual styles) -->
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+          type="win32" name="Microsoft.Windows.Common-Controls"
+          version="6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df"
+          language="*"
+      />
+    </dependentAssembly>
+  </dependency>
+  <!-- UAC and privilege settings -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges>
+        <!--
+          level="asInvoker": Run with the same privileges as the user.
+          Change to "requireAdministrator" if your app needs admin rights.
+        -->
+        <requestedExecutionLevel
+            level="asInvoker"
+            uiAccess="false"
+        />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <!-- Supported OS versions -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> <!-- Windows 10 -->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/> <!-- Windows 11 -->
+    </application>
+  </compatibility>
+  <!-- Windows application settings -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <!-- DPI awareness settings for high-DPI displays -->
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+    </windowsSettings>
+  </application>
+</assembly>

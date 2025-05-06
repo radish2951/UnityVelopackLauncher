@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Output type: WinExe for Windows GUI applications -->
+    <OutputType>WinExe</OutputType>
+    <!-- Target framework (recommend .NET 7 or later for Windows desktop apps) -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- Enable nullable reference types -->
+    <Nullable>enable</Nullable>
+    <!-- Enable implicit global usings -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Application icon and manifest -->
+    <ApplicationIcon>Launcher.ico</ApplicationIcon>
+    <ApplicationManifest>Launcher.manifest</ApplicationManifest>
+    <!-- Target platform architecture -->
+    <PlatformTarget>x64</PlatformTarget>
+    <!-- Allow unsafe code blocks if needed -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- Versioning -->
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <!-- VersionSuffix is usually not needed (leave empty by default).
+         If you want to specify a suffix for debug builds (e.g., "alpha"), set it here. -->
+    <VersionSuffix></VersionSuffix>
+
+    <!-- Assembly info (set your product/company info here) -->
+    <AssemblyName>YourProductName</AssemblyName> <!-- Executable file name -->
+    <Company>YourCompanyName</Company>
+    <Product>YourProductName</Product>
+    <Description>Your product description here</Description>
+    <Copyright>Copyright (C) 2025 YourCompanyName</Copyright>
+
+    <!-- Publish settings for Release build (single-file, self-contained, Windows x64) -->
+    <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+    <SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
+    <RuntimeIdentifier Condition="'$(Configuration)' == 'Release'">win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="0.0.1053" />
+  </ItemGroup>
+
+</Project>

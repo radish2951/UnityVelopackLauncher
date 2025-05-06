@@ -22,7 +22,10 @@
     <VersionPrefix>0.0.1</VersionPrefix>
     <!-- VersionSuffix is usually not needed (leave empty by default).
          If you want to specify a suffix for debug builds (e.g., "alpha"), set it here. -->
-    <VersionSuffix></VersionSuffix>
+    <!-- <VersionSuffix></VersionSuffix> -->
+
+    <!-- IncludeSourceRevisionInInformationalVersion: Set to false to prevent automatically appending the commit hash (source revision ID) to the assembly informational version. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 
     <!-- Assembly info (set your product/company info here) -->
     <AssemblyName>YourProductName</AssemblyName> <!-- Executable file name -->

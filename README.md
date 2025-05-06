@@ -4,6 +4,8 @@ A template project to create a custom launcher for Unity applications, enabling 
 
 This project provides the **minimum C# launcher code** required to get Velopack initialized in a way that's compatible with a standard Unity build. The actual update checking, downloading, and applying logic within your Unity application needs to be implemented by you, leveraging the Velopack C# API.
 
+**🚀 Super detailed explanations are available at [DeepWiki](https://deepwiki.com/radish2951/UnityVelopackLauncher)! It's fantastic! 🚀**
+
 ## Features
 
 *   Integrates Velopack initialization into a standalone C# launcher, executed before Unity starts.

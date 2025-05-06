@@ -67,7 +67,7 @@ This project provides the **minimum C# launcher code** required to get Velopack 
     *   **Replace the original Unity executable** (e.g., `MyUnityGame.exe`) with the launcher executable you built in step 4 (e.g., `YourProductName.exe`). Make sure to rename your built launcher to match the original Unity executable's name.
     *   Ensure `UnityPlayer.dll` is in the same directory as your new launcher executable. The launcher expects `UnityPlayer.dll` to be in its immediate vicinity.
 
-6.  **Leveraging Velopack in Your Unity Application (optionally):**
+6.  **Leverage Velopack in Your Unity Application (optionally):**
     *   This launcher (`Launcher.cs`) performs the crucial step of initializing Velopack via `VelopackApp.Build().Run()` **before** your Unity application starts. This is the primary function of this template.
     *   **With Velopack initialized by this launcher, your Unity application is now ready to utilize any of Velopack's features.**
     *   For example, you can:

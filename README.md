@@ -69,9 +69,7 @@ This project provides the **minimum C# launcher code** required to get Velopack 
     *   This launcher (`Launcher.cs`) handles the **initialization** of Velopack via `VelopackApp.Build().Run()`. This is crucial because it allows Velopack to manage its hooks and startup processes before Unity takes over.
     *   The actual logic for checking for updates, downloading them, and applying them (e.g., using `UpdateManager`) needs to be implemented **within your Unity application's C# scripts**.
     *   Since Velopack is initialized in the same process as your Unity game (this launcher loads `UnityPlayer.dll` in-process), you should be able to use Velopack's C# API directly from your Unity scripts.
-    *   **For examples and best practices on how to use the Velopack C# API within a Unity context (including handling updates and application restarts), please refer to:**
-        *   **Velopack's official C# documentation:** [Getting Started with .NET](https://docs.velopack.io/getting-started/csharp)
-        *   **Velopack's Unity Sample Project:** [CSharpUnityMono Sample](https://github.com/velopack/velopack/tree/develop/samples/CSharpUnityMono) (This sample demonstrates a more complete integration, including how to call Velopack APIs from Unity scripts and handle specific Unity considerations like `Application.Quit()` with `WaitExitThenApplyUpdates`).
+    *   For examples and best practices on how to use the Velopack C# API within a Unity context (including handling updates and application restarts), please consult the official Velopack documentation and their Unity sample project. **See the [References](#references) section below for direct links.** The `CSharpUnityMono` sample is particularly helpful for understanding how to call Velopack APIs from Unity scripts and handle specific Unity considerations (like using `Application.Quit()` with `WaitExitThenApplyUpdates`).
     *   Essentially, this launcher sets the stage for Velopack; your Unity code then takes over to manage the update lifecycle.
 
 ## Project Structure
@@ -96,6 +94,20 @@ UnityVelopackLauncher/
     *   Call `UnityMain` to start the Unity engine, passing necessary arguments.
 4.  Your Unity application then runs. It is now **your responsibility** to implement the logic using Velopack's C# API (e.g., `UpdateManager`) to check for new updates, download them, and trigger the update process (e.g., via `updateManager.WaitExitThenApplyUpdates(...)` followed by `UnityEngine.Application.Quit()`).
 5.  Error handling is in place in the launcher to display messages if `UnityPlayer.dll` cannot be loaded or `UnityMain` cannot be found.
+
+## References
+
+For more detailed information on Velopack, Unity integration, and the Windows build process, please refer to the following resources:
+
+*   **Velopack Documentation:**
+    *   [Getting Started with .NET (Velopack C# API)](https://docs.velopack.io/getting-started/csharp) - Official guide for using Velopack with .NET applications.
+    *   [Velopack App Hooks](https://docs.velopack.io/integrating/hooks) - Understanding how Velopack integrates with application startup.
+*   **Velopack Unity Sample:**
+    *   [CSharpUnityMono Sample (GitHub)](https://github.com/velopack/velopack/tree/develop/samples/CSharpUnityMono) - A sample project demonstrating Velopack integration with a Unity (Mono backend) application. This is a key resource for understanding how to implement update logic within Unity.
+*   **Unity Documentation:**
+    *   [Windows Player build binaries (Unity Manual)](https://docs.unity3d.com/Manual/WindowsStandaloneBinaries.html) - Official Unity documentation explaining the files generated during a Windows build and how `UnityPlayer.dll` is structured. This also touches upon rebuilding the executable.
+    *   [Unity Standalone Player command line arguments](https://docs.unity3d.com/Manual/PlayerCommandLineArguments.html) - Useful if you need to pass custom arguments to `UnityMain` via this launcher.
+    *   [Scripting restrictions in IL2CPP (Unity Manual)](https://docs.unity3d.com/Manual/scripting-restrictions.html) - Important considerations if you are targeting IL2CPP, especially regarding `System.Diagnostics.Process`.
 
 ## License
 

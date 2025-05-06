@@ -38,6 +38,10 @@
     <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
     <SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
     <RuntimeIdentifier Condition="'$(Configuration)' == 'Release'">win-x64</RuntimeIdentifier>
+
+    <!-- Enable compression for single-file publish (reduces file size) -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
   </PropertyGroup>
 
   <ItemGroup>

@@ -119,4 +119,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
+Contributions are welcome! Please feel free to submit a pull request or open an issue or DM [@radish2951](https://x.com/radish2951).

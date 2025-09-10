@@ -1,7 +1,10 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Linq;
 using Velopack;
 
+// 'partial' is required because LibraryImport generates partial methods.
+// Removing this modifier will result in build errors.
 public static partial class Launcher
 {
   // --- Win32 API P/Invoke definitions ---
@@ -36,12 +39,12 @@ public static partial class Launcher
   [STAThread]
   static int Main(string[] args)
   {
-    // 1. Initialize Velopack
-    VelopackApp.Build().Run();
-
     IntPtr hUnityPlayer = IntPtr.Zero;
     try
     {
+      // 1. Initialize Velopack
+      VelopackApp.Build().Run();
+
       // 2. Load UnityPlayer.dll
       string unityPlayerPath = Path.Combine(AppContext.BaseDirectory, "UnityPlayer.dll");
       hUnityPlayer = LoadLibraryW(unityPlayerPath);
@@ -62,7 +65,11 @@ public static partial class Launcher
 
       // 5. Prepare arguments for UnityMain
       IntPtr hInstance = GetModuleHandleW(null); // Get instance handle of the executable
-      string commandLine = string.Join(" ", args); // Command line arguments
+      if (hInstance == IntPtr.Zero)
+      {
+        throw new Win32Exception(Marshal.GetLastWin32Error(), "Failed to get module handle.");
+      }
+      string commandLine = string.Join(" ", args.Select(a => "\"" + a.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"")); // Command line arguments
 
       // 6. Call UnityMain
       int exitCode = unityMain(hInstance, IntPtr.Zero, commandLine, SW_SHOWDEFAULT);
@@ -85,7 +92,12 @@ public static partial class Launcher
       // 7. Ensure loaded library is freed
       if (hUnityPlayer != IntPtr.Zero)
       {
-        FreeLibrary(hUnityPlayer);
+        bool freed = FreeLibrary(hUnityPlayer);
+        if (!freed)
+        {
+          int error = Marshal.GetLastWin32Error();
+          ShowError($"Failed to free UnityPlayer.dll: {new Win32Exception(error).Message}");
+        }
       }
     }
   }

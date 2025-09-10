@@ -16,6 +16,7 @@ public partial class MainWindow : Window
 {
     private UnityBuildInfo? _info;
     private GameExeCandidate? _selected;
+    // no marker file; rely on version resource metadata
 
     public MainWindow()
     {
@@ -73,12 +74,56 @@ public partial class MainWindow : Window
         if (CmbExe.SelectedItem is GameExeCandidate cand)
         {
             _selected = cand;
-            var (product, company, version) = UnityBuildDetector.ReadFileVersion(cand.ExePath);
+            var vi = FileVersionInfo.GetVersionInfo(cand.ExePath);
+            string product = VersionResource.GetStringValue(cand.ExePath, "ProductName")
+                                ?? (string.IsNullOrWhiteSpace(vi.ProductName) ? Path.GetFileNameWithoutExtension(cand.ExePath) : vi.ProductName!);
+            string company = VersionResource.GetStringValue(cand.ExePath, "CompanyName") ?? vi.CompanyName ?? string.Empty;
+            string version = VersionResource.GetStringValue(cand.ExePath, "ProductVersion") ?? vi.ProductVersion ?? string.Empty;
+            string description = VersionResource.GetStringValue(cand.ExePath, "FileDescription") ?? vi.FileDescription ?? product;
+            string? identityFromExe = ManifestReader.TryReadAssemblyIdentityName(cand.ExePath);
+            string identity = !string.IsNullOrWhiteSpace(identityFromExe)
+                ? ManifestPatcher.EnsureValidIdentity(identityFromExe, ManifestPatcher.DeriveIdentity(company, product))
+                : ManifestPatcher.DeriveIdentity(company, product);
+
             TxtProductName.Text = product;
             TxtCompanyName.Text = company;
             TxtVersion.Text = version;
+            TxtDescription.Text = description;
+            TxtManifestName.Text = identity;
+            string copy = VersionResource.GetStringValue(cand.ExePath, "LegalCopyright") ?? vi.LegalCopyright ?? string.Empty;
+            TxtCopyright.Text = copy;
+
             BtnReplace.IsEnabled = true;
             LoadIconPreview(cand.ExePath);
+
+            // Detect if already converted (flag + _original exists)
+            if (IsAlreadyConverted(cand))
+            {
+                var result = System.Windows.MessageBox.Show(
+                    "This folder already contains a Velopack-enabled launcher (flag + _original.exe).\nRestore the original and load it?",
+                    "Already Converted",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.OK)
+                {
+                    try
+                    {
+                        RestoreOriginal(cand);
+                        AnalyzeNow();
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        TxtStatus.Text = ex.ToString();
+                    }
+                }
+                else
+                {
+                    ResetFormButKeepFolder();
+                    return;
+                }
+            }
+            // no suppression needed; app exits after successful replace
         }
         else
         {
@@ -86,6 +131,47 @@ public partial class MainWindow : Window
             BtnReplace.IsEnabled = false;
             ImgIcon.Source = null;
         }
+    }
+
+    private bool IsAlreadyConverted(GameExeCandidate cand)
+    {
+        try
+        {
+            var vi = FileVersionInfo.GetVersionInfo(cand.ExePath);
+            string sp = VersionResource.GetStringValue(cand.ExePath, "SpecialBuild") ?? vi.SpecialBuild ?? string.Empty;
+            string lt = VersionResource.GetStringValue(cand.ExePath, "LegalTrademarks") ?? vi.LegalTrademarks ?? string.Empty;
+            bool hasFlag = sp.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0 || lt.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0;
+            string original = Path.Combine(Path.GetDirectoryName(cand.ExePath)!, cand.BaseName + "_original.exe");
+            return hasFlag && File.Exists(original);
+        } catch { return false; }
+    }
+
+    private void RestoreOriginal(GameExeCandidate cand)
+    {
+        string dir = Path.GetDirectoryName(cand.ExePath)!;
+        string current = cand.ExePath;
+        string orig = Path.Combine(dir, cand.BaseName + "_original.exe");
+        if (!File.Exists(orig)) throw new FileNotFoundException("_original.exe not found", orig);
+
+        // Delete current converted launcher and restore original filename
+        try { File.Delete(current); } catch (Exception ex) { throw new IOException($"Failed to remove current launcher: {current}", ex); }
+        File.Move(orig, current);
+                
+        TxtStatus.Text = $"Restored original: {MakeShortPath(current)}";
+    }
+
+    private void ResetFormButKeepFolder()
+    {
+        _selected = null;
+        CmbExe.ItemsSource = null;
+        TxtProductName.Text = string.Empty;
+        TxtCompanyName.Text = string.Empty;
+        TxtVersion.Text = string.Empty;
+        TxtDescription.Text = string.Empty;
+        TxtManifestName.Text = string.Empty;
+        ImgIcon.Source = null;
+        BtnReplace.IsEnabled = false;
+        TxtStatus.Text = "Cancelled. No file loaded.";
     }
 
     private static string MakeShortPath(string path)
@@ -123,7 +209,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
+            using var icon = IconUtils.ExtractBestIcon(exePath);
             if (icon != null)
             {
                 var src = Imaging.CreateBitmapSourceFromHIcon(
@@ -154,11 +240,18 @@ public partial class MainWindow : Window
             string repoRoot = Path.GetFullPath(Path.Combine(exeDir, "..", "..", "..", ".."));
             string launcherCsproj = Path.Combine(repoRoot, "Launcher.csproj");
             if (!File.Exists(launcherCsproj)) throw new FileNotFoundException("Launcher.csproj not found.");
+            string launcherManifest = Path.Combine(repoRoot, "Launcher.manifest");
+            if (!File.Exists(launcherManifest)) throw new FileNotFoundException("Launcher.manifest not found.");
 
             // Read values from editable fields
             string product = TxtProductName.Text?.Trim() ?? string.Empty;
             string company = TxtCompanyName.Text?.Trim() ?? string.Empty;
             string version = TxtVersion.Text?.Trim() ?? string.Empty;
+            string description = TxtDescription.Text?.Trim() ?? product;
+            string identityInput = TxtManifestName.Text?.Trim();
+            string identity = ManifestPatcher.EnsureValidIdentity(identityInput, ManifestPatcher.DeriveIdentity(company, product));
+            TxtManifestName.Text = identity;
+            string copyright = TxtCopyright.Text?.Trim() ?? string.Empty;
             string assemblyName = _selected.BaseName;
 
             string icoPath = IconUtils.TrySaveIcoFromExe(_selected.ExePath) ?? string.Empty;
@@ -171,10 +264,15 @@ public partial class MainWindow : Window
             };
 
             string safeFileVersion = MakeSafeFileVersion(version);
-            string msbuildProps = $"/p:AssemblyName=\"{assemblyName}\" /p:Company=\"{company}\" /p:Product=\"{product}\" /p:Description=\"{product}\" /p:AssemblyInformationalVersion=\"{version}\" /p:IncludeSourceRevisionInInformationalVersion=false /p:EnableCompressionInSingleFile=true";
+            string msbuildProps = $"/p:AssemblyName=\"{assemblyName}\" /p:Company=\"{company}\" /p:Product=\"{product}\" /p:Description=\"{description}\" /p:InformationalVersion=\"{version}\" /p:IncludeSourceRevisionInInformationalVersion=false /p:EnableCompressionInSingleFile=true";
+            string patchedManifest = ManifestPatcher.CreateIdentityPatchedManifest(launcherManifest, identity);
+            msbuildProps += $" /p:ApplicationManifest=\"{patchedManifest}\"";
             if (!string.IsNullOrEmpty(safeFileVersion)) msbuildProps += $" /p:FileVersion=\"{safeFileVersion}\"";
             if (IsNumericVersion(version)) msbuildProps += $" /p:Version=\"{version}\""; // only when strictly numeric
             if (File.Exists(icoPath)) msbuildProps += $" /p:ApplicationIcon=\"{icoPath}\"";
+            // Use SpecialBuild field as a technical marker
+            msbuildProps += " /p:SpecialBuild=\"VelopackEnabled=1\""; msbuildProps += " /p:Trademark=\"VelopackEnabled=1\"";
+            if (!string.IsNullOrEmpty(copyright)) msbuildProps += $" /p:Copyright=\"{copyright}\"";
 
             string args = $"publish \"{launcherCsproj}\" -c Release -r {rid} --self-contained true /p:PublishSingleFile=true {msbuildProps}";
 
@@ -197,7 +295,32 @@ public partial class MainWindow : Window
             File.Copy(publishedExe, orig, overwrite: false);
 
             TxtStatus.Text = $"Replaced. Backup: {MakeShortPath(backup)}";
-            AnalyzeNow();
+
+            // Notify, open Explorer to the build directory, then exit the app
+            try
+            {
+                System.Windows.MessageBox.Show(
+                    "変換が完了しました。フォルダを開き、アプリを終了します。",
+                    "完了",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch { }
+
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = _info.BuildDirectory,
+                    UseShellExecute = false,
+                };
+                Process.Start(psi);
+            }
+            catch { }
+
+            try { System.Windows.Application.Current.Shutdown(); } catch { }
+            return;
         }
         catch (Exception ex)
         {
@@ -289,3 +412,5 @@ public partial class MainWindow : Window
         catch { }
     }
 }
+
+

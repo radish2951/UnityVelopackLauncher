@@ -2,9 +2,13 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Velopack;
 
+// Why 'partial': [LibraryImport]-annotated methods are partial; partial methods
+// must live in a partial type. Removing 'partial' will fail compilation.
+
 public static partial class Launcher
 {
   // --- Win32 API P/Invoke definitions ---
+  // Note: [LibraryImport] may generate unsafe stubs; csproj enables AllowUnsafeBlocks.
   [LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
   private static partial IntPtr LoadLibraryW(string lpLibFileName);
 
@@ -62,7 +66,8 @@ public static partial class Launcher
 
       // 5. Prepare arguments for UnityMain
       IntPtr hInstance = GetModuleHandleW(null); // Get instance handle of the executable
-      string commandLine = string.Join(" ", args); // Command line arguments
+      // Preserve the original user command line exactly (minus the exe token)
+      string commandLine = RawCommandLine.GetAfterExeFromEnvironment();
 
       // 6. Call UnityMain
       int exitCode = unityMain(hInstance, IntPtr.Zero, commandLine, SW_SHOWDEFAULT);

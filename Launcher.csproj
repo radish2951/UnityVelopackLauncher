@@ -15,7 +15,8 @@
     <ApplicationManifest>Launcher.manifest</ApplicationManifest>
     <!-- Target platform architecture -->
     <PlatformTarget>x64</PlatformTarget>
-    <!-- Allow unsafe code blocks if needed -->
+    <!-- Required for [LibraryImport]-generated P/Invoke stubs which may use unsafe.
+         Don't disable unless switching away from [LibraryImport]. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Versioning -->
@@ -46,6 +47,13 @@
 
   <ItemGroup>
     <PackageReference Include="Velopack" Version="0.0.1298" />
+  </ItemGroup>
+
+  <!-- Exclude test project files from this app project build -->
+  <ItemGroup>
+    <Compile Remove="Tests\**\*.*" />
+    <EmbeddedResource Remove="Tests\**\*.*" />
+    <None Remove="Tests\**\*.*" />
   </ItemGroup>
 
 </Project>

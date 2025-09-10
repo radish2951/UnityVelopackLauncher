@@ -32,6 +32,7 @@ This project provides the **minimum C# launcher code** required to get Velopack 
         *   `<Product>YourProductName</Product>` (e.g., `My Awesome Game`)
         *   `<Description>Your product description here</Description>`
         *   `<Copyright>Copyright (C) 2025 YourCompanyName</Copyright>`
+        *   `<Version>0.0.1</Version>` (set your app version; commit hash is not appended by default)
     *   Open `Launcher.manifest`.
     *   Update the following placeholders:
         *   `<assemblyIdentity name="YourCompany.YourAwesomeGame.Launcher" ... />` (e.g., `MyCompany.MyAwesomeGame.Launcher`)
@@ -84,6 +85,11 @@ UnityVelopackLauncher/
 ├── Launcher.csproj # C# project file
 ├── Launcher.manifest # Application manifest for Windows
 ├── Launcher.ico # Application icon
+├── Helpers/
+│   └── RawCommandLine.cs # Extracts original command line (minus exe)
+├── Tests/
+│   ├── UnityVelopackLauncher.Tests.csproj
+│   └── RawCommandLineTests.cs
 ├── LICENSE # Project license
 └── README.md # This file
 ```

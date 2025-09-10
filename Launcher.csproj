@@ -15,7 +15,7 @@
     <ApplicationManifest>Launcher.manifest</ApplicationManifest>
     <!-- Target platform architecture -->
     <PlatformTarget>x64</PlatformTarget>
-    <!-- Allow unsafe code blocks if needed -->
+    <!-- Required: LibraryImport-generated code uses unsafe pointers -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Versioning -->

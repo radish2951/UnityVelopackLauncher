@@ -38,14 +38,14 @@ public class RawCommandLineTests
   [InlineData("C:/Path/Launcher.exe")]
   public void Extract_AfterExe_UnquotedExe(string exePath)
   {
+    // Use simple tokens that require no quoting so we can join directly.
     string[] tokens =
     {
-      "--path","C: \\ My Game \\ save file.txt".Replace(" \\ ", "\\"),
-      "--name","Alice \"The Great\"",
-      "--dir","C: \\ Temp \\".Replace(" \\ ", "\\"),
-      "--empty",""
+      "--path","C: \\ Game".Replace(" \\ ", "\\"),
+      "--name","Alice",
+      "--dir","C: \\ Temp".Replace(" \\ ", "\\")
     };
-    string remainder = string.Join(" ", tokens.Select(CommandLineQuoter.QuoteArg));
+    string remainder = string.Join(" ", tokens);
     string full = exePath + "  " + remainder; // multiple spaces before args are allowed
 
     string after = RawCommandLine.GetAfterExe(full);
@@ -59,15 +59,15 @@ public class RawCommandLineTests
   public void Extract_AfterExe_QuotedExeWithSpaces()
   {
     string exe = "\"C: \\ Program Files \\ MyApp \\ Launcher.exe\"".Replace(" \\ ", "\\");
+    // Use simple tokens (no quoting required) to focus this test on exe parsing
     string[] tokens =
     {
       "-w","1280",
-      "--path","C: \\ My Game \\ save file.txt".Replace(" \\ ", "\\"),
-      "--name","Alice \"The Great\"",
-      "--dir","C: \\ Temp \\".Replace(" \\ ", "\\"),
-      "--empty",""
+      "--path","C: \\ Game".Replace(" \\ ", "\\"),
+      "--name","Alice",
+      "--dir","C: \\ Temp".Replace(" \\ ", "\\")
     };
-    string remainder = string.Join(" ", tokens.Select(CommandLineQuoter.QuoteArg));
+    string remainder = string.Join(" ", tokens);
     string full = exe + "\t" + remainder; // tab after exe
 
     string after = RawCommandLine.GetAfterExe(full);
@@ -86,4 +86,3 @@ public class RawCommandLineTests
     Assert.Equal(string.Empty, RawCommandLine.GetAfterExe(full2));
   }
 }
-

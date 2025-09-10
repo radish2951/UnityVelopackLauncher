@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Configurator"
         mc:Ignorable="d"
-        Title="Unity Velopack Configurator (Minimum)" Height="380" Width="720" MinWidth="640" MinHeight="340">
+        Title="Unity Velopack Configurator" Height="420" Width="760" MinWidth="640" MinHeight="340">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -34,17 +34,16 @@
         <!-- Row 1: EXE candidate selection -->
         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center">Game EXE:</TextBlock>
         <ComboBox x:Name="CmbExe" Grid.Row="1" Grid.Column="1" Margin="0,0,8,8" Height="28" SelectionChanged="CmbExe_SelectionChanged"/>
-        <TextBlock Grid.Row="1" Grid.Column="2" Margin="0,0,0,8" VerticalAlignment="Center" Foreground="Gray" FontStyle="Italic">select if multiple</TextBlock>
 
         <!-- Row 2-5: Metadata -->
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Product Name:</TextBlock>
-        <TextBlock x:Name="LblProductName" Grid.Row="2" Grid.Column="1" Margin="0,0,8,4"/>
+        <TextBox x:Name="TxtProductName" Grid.Row="2" Grid.Column="1" Margin="0,0,8,4" Height="28"/>
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Company Name:</TextBlock>
-        <TextBlock x:Name="LblCompanyName" Grid.Row="3" Grid.Column="1" Margin="0,0,8,4"/>
+        <TextBox x:Name="TxtCompanyName" Grid.Row="3" Grid.Column="1" Margin="0,0,8,4" Height="28"/>
 
         <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Version:</TextBlock>
-        <TextBlock x:Name="LblVersion" Grid.Row="4" Grid.Column="1" Margin="0,0,8,4"/>
+        <TextBox x:Name="TxtVersion" Grid.Row="4" Grid.Column="1" Margin="0,0,8,4" Height="28"/>
 
         <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center">Architecture:</TextBlock>
         <TextBlock x:Name="LblArch" Grid.Row="5" Grid.Column="1" Margin="0,0,8,8"/>

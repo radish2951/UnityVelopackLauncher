@@ -8,6 +8,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Configurator.Models;
 using Configurator.Services;
+using Configurator.Utils;
 
 namespace Configurator;
 
@@ -36,7 +37,7 @@ public partial class MainWindow : Window
     private void AnalyzeNow()
     {
         TxtStatus.Text = string.Empty;
-        LblProductName.Text = LblCompanyName.Text = LblVersion.Text = LblArch.Text = string.Empty;
+        TxtProductName.Text = TxtCompanyName.Text = TxtVersion.Text = LblArch.Text = string.Empty;
         CmbExe.ItemsSource = null;
         BtnReplace.IsEnabled = false;
         ImgIcon.Source = null;
@@ -73,9 +74,9 @@ public partial class MainWindow : Window
         {
             _selected = cand;
             var (product, company, version) = UnityBuildDetector.ReadFileVersion(cand.ExePath);
-            LblProductName.Text = product;
-            LblCompanyName.Text = company;
-            LblVersion.Text = version;
+            TxtProductName.Text = product;
+            TxtCompanyName.Text = company;
+            TxtVersion.Text = version;
             BtnReplace.IsEnabled = true;
             LoadIconPreview(cand.ExePath);
         }
@@ -154,20 +155,13 @@ public partial class MainWindow : Window
             string launcherCsproj = Path.Combine(repoRoot, "Launcher.csproj");
             if (!File.Exists(launcherCsproj)) throw new FileNotFoundException("Launcher.csproj not found.");
 
-            var (product, company, version) = UnityBuildDetector.ReadFileVersion(_selected.ExePath);
+            // Read values from editable fields
+            string product = TxtProductName.Text?.Trim() ?? string.Empty;
+            string company = TxtCompanyName.Text?.Trim() ?? string.Empty;
+            string version = TxtVersion.Text?.Trim() ?? string.Empty;
             string assemblyName = _selected.BaseName;
 
-            string icoPath = Path.Combine(Path.GetTempPath(), $"{assemblyName}_icon_{Guid.NewGuid():N}.ico");
-            try
-            {
-                using var icon = System.Drawing.Icon.ExtractAssociatedIcon(_selected.ExePath);
-                if (icon != null)
-                {
-                    using var fs = File.Create(icoPath);
-                    icon.Save(fs);
-                }
-            }
-            catch { }
+            string icoPath = IconUtils.TrySaveIcoFromExe(_selected.ExePath) ?? string.Empty;
 
             string rid = _info.Architecture switch
             {
@@ -179,6 +173,7 @@ public partial class MainWindow : Window
             string safeFileVersion = MakeSafeFileVersion(version);
             string msbuildProps = $"/p:AssemblyName=\"{assemblyName}\" /p:Company=\"{company}\" /p:Product=\"{product}\" /p:Description=\"{product}\" /p:AssemblyInformationalVersion=\"{version}\" /p:IncludeSourceRevisionInInformationalVersion=false /p:EnableCompressionInSingleFile=true";
             if (!string.IsNullOrEmpty(safeFileVersion)) msbuildProps += $" /p:FileVersion=\"{safeFileVersion}\"";
+            if (IsNumericVersion(version)) msbuildProps += $" /p:Version=\"{version}\""; // only when strictly numeric
             if (File.Exists(icoPath)) msbuildProps += $" /p:ApplicationIcon=\"{icoPath}\"";
 
             string args = $"publish \"{launcherCsproj}\" -c Release -r {rid} --self-contained true /p:PublishSingleFile=true {msbuildProps}";
@@ -271,6 +266,13 @@ public partial class MainWindow : Window
         {
             return string.Empty;
         }
+    }
+
+    private static bool IsNumericVersion(string? v)
+    {
+        if (string.IsNullOrWhiteSpace(v)) return false;
+        // 1 to 4 numeric parts
+        return System.Text.RegularExpressions.Regex.IsMatch(v, "^\\d+(?:\\.\\d+){1,3}$");
     }
 
     private void BtnCopyStatus_Click(object sender, RoutedEventArgs e)

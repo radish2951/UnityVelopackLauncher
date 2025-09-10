@@ -56,4 +56,11 @@
     <None Remove="Tests\**\*.*" />
   </ItemGroup>
 
+  <!-- Exclude Configurator project files from this app project build -->
+  <ItemGroup>
+    <Compile Remove="Configurator\**\*.*" />
+    <EmbeddedResource Remove="Configurator\**\*.*" />
+    <None Remove="Configurator\**\*.*" />
+  </ItemGroup>
+
 </Project>

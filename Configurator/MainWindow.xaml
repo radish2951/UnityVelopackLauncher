@@ -1,0 +1,75 @@
+<Window x:Class="Configurator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Configurator"
+        mc:Ignorable="d"
+        Title="Unity Velopack Configurator (Minimum)" Height="380" Width="720" MinWidth="640" MinHeight="340">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Row 0: Build directory selection -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center">Build Directory:</TextBlock>
+        <TextBox x:Name="TxtBuildDir" Grid.Row="0" Grid.Column="1" Margin="0,0,8,8" Height="28" KeyDown="TxtBuildDir_KeyDown" LostFocus="TxtBuildDir_LostFocus"/>
+        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button x:Name="BtnBrowse" Click="BtnBrowse_Click" Width="80">Browse</Button>
+        </StackPanel>
+
+        <!-- Row 1: EXE candidate selection -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center">Game EXE:</TextBlock>
+        <ComboBox x:Name="CmbExe" Grid.Row="1" Grid.Column="1" Margin="0,0,8,8" Height="28" SelectionChanged="CmbExe_SelectionChanged"/>
+        <TextBlock Grid.Row="1" Grid.Column="2" Margin="0,0,0,8" VerticalAlignment="Center" Foreground="Gray" FontStyle="Italic">select if multiple</TextBlock>
+
+        <!-- Row 2-5: Metadata -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Product Name:</TextBlock>
+        <TextBlock x:Name="LblProductName" Grid.Row="2" Grid.Column="1" Margin="0,0,8,4"/>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Company Name:</TextBlock>
+        <TextBlock x:Name="LblCompanyName" Grid.Row="3" Grid.Column="1" Margin="0,0,8,4"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,4" VerticalAlignment="Center">Version:</TextBlock>
+        <TextBlock x:Name="LblVersion" Grid.Row="4" Grid.Column="1" Margin="0,0,8,4"/>
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center">Architecture:</TextBlock>
+        <TextBlock x:Name="LblArch" Grid.Row="5" Grid.Column="1" Margin="0,0,8,8"/>
+
+        <!-- Icon preview -->
+        <Border Grid.Row="2" Grid.Column="2" Grid.RowSpan="4" Margin="0,0,0,8" Padding="8" BorderBrush="#DDD" BorderThickness="1" CornerRadius="4">
+            <StackPanel>
+                <TextBlock Text="Icon Preview" Foreground="Gray" Margin="0,0,0,8"/>
+                <Image x:Name="ImgIcon" Width="64" Height="64"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 7: Spacer -->
+        <Border Grid.Row="7" Grid.ColumnSpan="3"/>
+
+        <!-- Row 8: Actions + Status -->
+        <Grid Grid.Row="8" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BtnReplace" Grid.Column="0" Click="BtnReplace_Click" Width="260" Margin="0,0,8,0" IsEnabled="False">Replace with Velopack Launcher</Button>
+            <TextBox x:Name="TxtStatus" Grid.Column="1" Margin="0,0,8,0" MinHeight="28" VerticalContentAlignment="Center" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+            <Button Grid.Column="2" Width="72" Click="BtnCopyStatus_Click">Copy</Button>
+        </Grid>
+    </Grid>
+</Window>

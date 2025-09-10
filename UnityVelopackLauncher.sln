@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityVelopackLauncher.Tests", "Tests\UnityVelopackLauncher.Tests.csproj", "{E8804661-AA0A-4D46-83C2-E161ACD29384}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configurator", "Configurator\Configurator.csproj", "{612518E3-ECBE-4A5E-BA46-4879B7045BE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{E8804661-AA0A-4D46-83C2-E161ACD29384}.Release|x64.Build.0 = Release|Any CPU
 		{E8804661-AA0A-4D46-83C2-E161ACD29384}.Release|x86.ActiveCfg = Release|Any CPU
 		{E8804661-AA0A-4D46-83C2-E161ACD29384}.Release|x86.Build.0 = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|x64.Build.0 = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Debug|x86.Build.0 = Debug|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|x64.ActiveCfg = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|x64.Build.0 = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|x86.ActiveCfg = Release|Any CPU
+		{612518E3-ECBE-4A5E-BA46-4879B7045BE6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

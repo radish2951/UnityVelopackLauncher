@@ -20,7 +20,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Versioning -->
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <Version>0.0.1</Version>
     <!-- VersionSuffix is usually not needed (leave empty by default).
          If you want to specify a suffix for debug builds (e.g., "alpha"), set it here. -->
     <!-- <VersionSuffix></VersionSuffix> -->

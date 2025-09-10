@@ -44,8 +44,12 @@
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <!-- DPI awareness settings for high-DPI displays -->
+      <!-- Keep both entries intentionally for compatibility:
+           - dpiAwareness (2016 schema) is honored on Windows 10/11 and newer.
+           - dpiAware    (2005 schema) provides fallback on older Windows builds. -->
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
-      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <!-- Prefer PerMonitorV2 on Win10/11; fallback to PerMonitor on older builds -->
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
     </windowsSettings>
   </application>
 </assembly>

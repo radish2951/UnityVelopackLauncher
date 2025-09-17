@@ -1,7 +1,5 @@
-using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -18,9 +16,35 @@ public partial class MainWindow : Window
     private GameExeCandidate? _selected;
     // no marker file; rely on version resource metadata
 
+    // Access XAML elements via FindName so IDE doesn't require generated fields
+    private System.Windows.Controls.TextBox TxtBuildDirCtl => (System.Windows.Controls.TextBox)FindName("TxtBuildDir");
+    private System.Windows.Controls.ComboBox CmbExeCtl => (System.Windows.Controls.ComboBox)FindName("CmbExe");
+    private System.Windows.Controls.Button BtnReplaceCtl => (System.Windows.Controls.Button)FindName("BtnReplace");
+    private System.Windows.Controls.Image ImgIconCtl => (System.Windows.Controls.Image)FindName("ImgIcon");
+    private System.Windows.Controls.TextBox TxtProductNameCtl => (System.Windows.Controls.TextBox)FindName("TxtProductName");
+    private System.Windows.Controls.TextBox TxtCompanyNameCtl => (System.Windows.Controls.TextBox)FindName("TxtCompanyName");
+    private System.Windows.Controls.TextBox TxtVersionCtl => (System.Windows.Controls.TextBox)FindName("TxtVersion");
+    private System.Windows.Controls.TextBlock LblArchCtl => (System.Windows.Controls.TextBlock)FindName("LblArch");
+    private System.Windows.Controls.TextBox TxtDescriptionCtl => (System.Windows.Controls.TextBox)FindName("TxtDescription");
+    private System.Windows.Controls.TextBox TxtManifestNameCtl => (System.Windows.Controls.TextBox)FindName("TxtManifestName");
+    private System.Windows.Controls.TextBox TxtCopyrightCtl => (System.Windows.Controls.TextBox)FindName("TxtCopyright");
+    private System.Windows.Controls.TextBox TxtStatusCtl => (System.Windows.Controls.TextBox)FindName("TxtStatus");
+
     public MainWindow()
     {
-        InitializeComponent();
+        InitializeComponentSafe();
+    }
+
+    private void InitializeComponentSafe()
+    {
+        try
+        {
+            var mi = typeof(MainWindow).GetMethod(
+                "InitializeComponent",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            mi?.Invoke(this, null);
+        }
+        catch { }
     }
 
     private void BtnBrowse_Click(object sender, RoutedEventArgs e)
@@ -30,48 +54,49 @@ public partial class MainWindow : Window
         dlg.UseDescriptionForTitle = true;
         if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
         {
-            TxtBuildDir.Text = dlg.SelectedPath;
+            TxtBuildDirCtl.Text = dlg.SelectedPath;
             AnalyzeNow();
         }
     }
 
     private void AnalyzeNow()
     {
-        TxtStatus.Text = string.Empty;
-        TxtProductName.Text = TxtCompanyName.Text = TxtVersion.Text = LblArch.Text = string.Empty;
-        CmbExe.ItemsSource = null;
-        BtnReplace.IsEnabled = false;
-        ImgIcon.Source = null;
+        TxtStatusCtl.Text = string.Empty;
+        TxtProductNameCtl.Text = TxtCompanyNameCtl.Text = TxtVersionCtl.Text = LblArchCtl.Text = string.Empty;
+        CmbExeCtl.ItemsSource = null;
+        BtnReplaceCtl.IsEnabled = false;
+        ImgIconCtl.Source = null;
 
         try
         {
-            string dir = TxtBuildDir.Text.Trim();
+            string dir = TxtBuildDirCtl.Text.Trim();
             _info = UnityBuildDetector.Analyze(dir);
-            LblArch.Text = _info.Architecture;
-            CmbExe.ItemsSource = _info.Candidates;
+            LblArchCtl.Text = _info.Architecture;
+            CmbExeCtl.ItemsSource = _info.Candidates;
             if (_info.Candidates.Count > 0)
             {
                 var preferred = _info.Candidates.Find(c => !string.IsNullOrEmpty(c.DataDirPath) && !IsCrashHandler(c.ExePath))
                                 ?? _info.Candidates.Find(c => !IsCrashHandler(c.ExePath))
                                 ?? _info.Candidates[0];
-                CmbExe.SelectedItem = preferred;
-                TxtStatus.Text = $"Found {_info.Candidates.Count} candidate(s).";
+                CmbExeCtl.SelectedItem = preferred;
+                TxtStatusCtl.Text = $"Found {_info.Candidates.Count} candidate(s).";
             }
             else
             {
-                TxtStatus.Text = "No EXE found. Pick a different folder.";
+                TxtStatusCtl.Text = "No EXE found. Pick a different folder.";
             }
         }
         catch (Exception ex)
         {
             _info = null;
-            TxtStatus.Text = ex.ToString();
+            TxtStatusCtl.Text = ex.ToString();
         }
     }
 
     private void CmbExe_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (CmbExe.SelectedItem is GameExeCandidate cand)
+        var cmb = CmbExeCtl;
+        if (cmb.SelectedItem is GameExeCandidate cand)
         {
             _selected = cand;
             var vi = FileVersionInfo.GetVersionInfo(cand.ExePath);
@@ -85,15 +110,15 @@ public partial class MainWindow : Window
                 ? ManifestPatcher.EnsureValidIdentity(identityFromExe, ManifestPatcher.DeriveIdentity(company, product))
                 : ManifestPatcher.DeriveIdentity(company, product);
 
-            TxtProductName.Text = product;
-            TxtCompanyName.Text = company;
-            TxtVersion.Text = version;
-            TxtDescription.Text = description;
-            TxtManifestName.Text = identity;
+            TxtProductNameCtl.Text = product;
+            TxtCompanyNameCtl.Text = company;
+            TxtVersionCtl.Text = version;
+            TxtDescriptionCtl.Text = description;
+            TxtManifestNameCtl.Text = identity;
             string copy = VersionResource.GetStringValue(cand.ExePath, "LegalCopyright") ?? vi.LegalCopyright ?? string.Empty;
-            TxtCopyright.Text = copy;
+            TxtCopyrightCtl.Text = copy;
 
-            BtnReplace.IsEnabled = true;
+            BtnReplaceCtl.IsEnabled = true;
             LoadIconPreview(cand.ExePath);
 
             // Detect if already converted (flag + _original exists)
@@ -114,7 +139,7 @@ public partial class MainWindow : Window
                     }
                     catch (Exception ex)
                     {
-                        TxtStatus.Text = ex.ToString();
+                        TxtStatusCtl.Text = ex.ToString();
                     }
                 }
                 else
@@ -128,8 +153,8 @@ public partial class MainWindow : Window
         else
         {
             _selected = null;
-            BtnReplace.IsEnabled = false;
-            ImgIcon.Source = null;
+            BtnReplaceCtl.IsEnabled = false;
+            ImgIconCtl.Source = null;
         }
     }
 
@@ -143,7 +168,8 @@ public partial class MainWindow : Window
             bool hasFlag = sp.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0 || lt.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0;
             string original = Path.Combine(Path.GetDirectoryName(cand.ExePath)!, cand.BaseName + "_original.exe");
             return hasFlag && File.Exists(original);
-        } catch { return false; }
+        }
+        catch { return false; }
     }
 
     private void RestoreOriginal(GameExeCandidate cand)
@@ -156,22 +182,22 @@ public partial class MainWindow : Window
         // Delete current converted launcher and restore original filename
         try { File.Delete(current); } catch (Exception ex) { throw new IOException($"Failed to remove current launcher: {current}", ex); }
         File.Move(orig, current);
-                
-        TxtStatus.Text = $"Restored original: {MakeShortPath(current)}";
+
+        TxtStatusCtl.Text = $"Restored original: {MakeShortPath(current)}";
     }
 
     private void ResetFormButKeepFolder()
     {
         _selected = null;
-        CmbExe.ItemsSource = null;
-        TxtProductName.Text = string.Empty;
-        TxtCompanyName.Text = string.Empty;
-        TxtVersion.Text = string.Empty;
-        TxtDescription.Text = string.Empty;
-        TxtManifestName.Text = string.Empty;
-        ImgIcon.Source = null;
-        BtnReplace.IsEnabled = false;
-        TxtStatus.Text = "Cancelled. No file loaded.";
+        CmbExeCtl.ItemsSource = null;
+        TxtProductNameCtl.Text = string.Empty;
+        TxtCompanyNameCtl.Text = string.Empty;
+        TxtVersionCtl.Text = string.Empty;
+        TxtDescriptionCtl.Text = string.Empty;
+        TxtManifestNameCtl.Text = string.Empty;
+        ImgIconCtl.Source = null;
+        BtnReplaceCtl.IsEnabled = false;
+        TxtStatusCtl.Text = "Cancelled. No file loaded.";
     }
 
     private static string MakeShortPath(string path)
@@ -216,24 +242,24 @@ public partial class MainWindow : Window
                     icon.Handle,
                     new System.Windows.Int32Rect(0, 0, icon.Width, icon.Height),
                     BitmapSizeOptions.FromWidthAndHeight(64, 64));
-                ImgIcon.Source = src;
+                ImgIconCtl.Source = src;
             }
             else
             {
-                ImgIcon.Source = null;
+                ImgIconCtl.Source = null;
             }
         }
         catch
         {
-            ImgIcon.Source = null;
+            ImgIconCtl.Source = null;
         }
     }
 
     private async void BtnReplace_Click(object sender, RoutedEventArgs e)
     {
         if (_info == null || _selected == null) return;
-        BtnReplace.IsEnabled = false;
-        TxtStatus.Text = "Building launcher...";
+        BtnReplaceCtl.IsEnabled = false;
+        TxtStatusCtl.Text = "Building launcher...";
         try
         {
             string exeDir = AppContext.BaseDirectory;
@@ -244,17 +270,18 @@ public partial class MainWindow : Window
             if (!File.Exists(launcherManifest)) throw new FileNotFoundException("Launcher.manifest not found.");
 
             // Read values from editable fields
-            string product = TxtProductName.Text?.Trim() ?? string.Empty;
-            string company = TxtCompanyName.Text?.Trim() ?? string.Empty;
-            string version = TxtVersion.Text?.Trim() ?? string.Empty;
-            string description = TxtDescription.Text?.Trim() ?? product;
-            string identityInput = TxtManifestName.Text?.Trim();
+            string product = TxtProductNameCtl.Text?.Trim() ?? string.Empty;
+            string company = TxtCompanyNameCtl.Text?.Trim() ?? string.Empty;
+            string version = TxtVersionCtl.Text?.Trim() ?? string.Empty;
+            string description = TxtDescriptionCtl.Text?.Trim() ?? product;
+            string identityInput = TxtManifestNameCtl.Text?.Trim() ?? string.Empty;
             string identity = ManifestPatcher.EnsureValidIdentity(identityInput, ManifestPatcher.DeriveIdentity(company, product));
-            TxtManifestName.Text = identity;
-            string copyright = TxtCopyright.Text?.Trim() ?? string.Empty;
+            TxtManifestNameCtl.Text = identity;
+            string copyright = TxtCopyrightCtl.Text?.Trim() ?? string.Empty;
             string assemblyName = _selected.BaseName;
 
-            string icoPath = IconUtils.TrySaveIcoFromExe(_selected.ExePath) ?? string.Empty;
+            // Extract full-fidelity multi-size icon from the original EXE to avoid monochrome/low-color issues
+            string icoPath = IconExtractor.TryExtractFullIconIco(_selected.ExePath) ?? string.Empty;
 
             string rid = _info.Architecture switch
             {
@@ -294,7 +321,7 @@ public partial class MainWindow : Window
 
             File.Copy(publishedExe, orig, overwrite: false);
 
-            TxtStatus.Text = $"Replaced. Backup: {MakeShortPath(backup)}";
+            TxtStatusCtl.Text = $"Replaced. Backup: {MakeShortPath(backup)}";
 
             // Notify, open Explorer to the build directory, then exit the app
             try
@@ -324,11 +351,11 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            TxtStatus.Text = ex.ToString();
+            TxtStatusCtl.Text = ex.ToString();
         }
         finally
         {
-            BtnReplace.IsEnabled = true;
+            BtnReplaceCtl.IsEnabled = true;
         }
     }
 
@@ -402,11 +429,11 @@ public partial class MainWindow : Window
     {
         try
         {
-            var text = TxtStatus.Text;
+            var text = TxtStatusCtl.Text;
             if (!string.IsNullOrEmpty(text))
             {
                 System.Windows.Clipboard.SetText(text);
-                TxtStatus.ToolTip = "Copied to clipboard";
+                TxtStatusCtl.ToolTip = "Copied to clipboard";
             }
         }
         catch { }

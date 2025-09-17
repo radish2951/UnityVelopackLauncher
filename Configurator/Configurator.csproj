@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -10,5 +10,9 @@
     <AssemblyName>UnityVelopackConfigurator</AssemblyName>
     <ApplicationIcon>..\Launcher.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <!-- Include IntelliSense-only stubs during IDE design-time build (OmniSharp/VS). 
+       Exclude when WPF runs its own _wpftmp design-time compile to avoid duplicates. -->
+  <!-- No design-time stubs needed thanks to runtime reflection + FindName() usage. -->
 
 </Project>

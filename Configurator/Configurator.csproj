@@ -9,9 +9,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>UnityVelopackConfigurator</AssemblyName>
     <ApplicationIcon>..\Launcher.ico</ApplicationIcon>
+    <StartupObject>Configurator.Program</StartupObject>
   </PropertyGroup>
 
-  <!-- Include IntelliSense-only stubs during IDE design-time build (OmniSharp/VS). 
+  <!-- Include IntelliSense-only stubs during IDE design-time build (OmniSharp/VS).
        Exclude when WPF runs its own _wpftmp design-time compile to avoid duplicates. -->
   <!-- No design-time stubs needed thanks to runtime reflection + FindName() usage. -->
 

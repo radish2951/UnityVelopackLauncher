@@ -77,6 +77,28 @@ This project provides the **minimum C# launcher code** required to get Velopack 
     *   How you choose to use Velopack beyond this initial setup is up to your project's needs.
     *   **For detailed guidance on using Velopack's C# API, creating packages, implementing update logic, and other features, please refer to the official Velopack documentation and their Unity sample project.** See the [References](#references) section below for direct links.
 
+7.  **Create Distribution Packages with vpk:**
+    *   After building your launcher and integrating it with your Unity build, use the `vpk` command-line tool to create distribution packages:
+        ```bash
+        # Install Velopack CLI tool (one-time setup)
+        dotnet tool install -g vpk
+        
+        # Create release packages
+        vpk pack -u "YourCompany.YourApp" -v "1.0.0" -p "C:\Path\To\Your\Unity\Build" -e "YourGameLauncher.exe"
+        ```
+    *   **Application ID Naming Convention:**
+        *   Use the format `CompanyName.AppName` (e.g., `BloomingSpectrum.MyGame`) to ensure global uniqueness
+        *   Avoid simple names like `mygame` which may conflict with other applications
+        *   The Application ID becomes part of the installation directory path (`%LocalAppData%\{AppId}`)
+    *   **Generated Files:**
+        *   `YourApp-Setup.exe` - Installer for end users
+        *   `YourApp-1.0.0-full.nupkg` - Full release package for updates
+        *   `releases.production.json` - Metadata file listing available releases
+    *   **Distribution:**
+        *   Upload the installer (`Setup.exe`) to your website for user downloads
+        *   Upload `.nupkg` files and `releases.json` to your update server (GitHub Releases, AWS S3, etc.)
+        *   Use `vpk upload` command for automated deployment to supported platforms
+
 ## Project Structure
 
 ```

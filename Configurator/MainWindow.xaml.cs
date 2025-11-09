@@ -160,16 +160,7 @@ public partial class MainWindow : Window
 
     private bool IsAlreadyConverted(GameExeCandidate cand)
     {
-        try
-        {
-            var vi = FileVersionInfo.GetVersionInfo(cand.ExePath);
-            string sp = VersionResource.GetStringValue(cand.ExePath, "SpecialBuild") ?? vi.SpecialBuild ?? string.Empty;
-            string lt = VersionResource.GetStringValue(cand.ExePath, "LegalTrademarks") ?? vi.LegalTrademarks ?? string.Empty;
-            bool hasFlag = sp.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0 || lt.IndexOf("VelopackEnabled=1", StringComparison.OrdinalIgnoreCase) >= 0;
-            string original = Path.Combine(Path.GetDirectoryName(cand.ExePath)!, cand.BaseName + "_original.exe");
-            return hasFlag && File.Exists(original);
-        }
-        catch { return false; }
+        return Services.LauncherBuilder.IsAlreadyConverted(cand);
     }
 
     private void RestoreOriginal(GameExeCandidate cand)
@@ -381,48 +372,12 @@ public partial class MainWindow : Window
 
     private static string MakeSafeFileVersion(string? raw)
     {
-        // Convert strings like "6000.0.23f1 (1c4764c07fb4)" into "6000.0.23.1" (4-part numeric).
-        try
-        {
-            if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
-            var nums = new System.Collections.Generic.List<int>();
-            long current = -1;
-            foreach (char ch in raw!)
-            {
-                if (char.IsDigit(ch))
-                {
-                    if (current < 0) current = 0;
-                    current = current * 10 + (ch - '0');
-                    if (current > int.MaxValue) current = int.MaxValue;
-                }
-                else
-                {
-                    if (current >= 0)
-                    {
-                        nums.Add((int)current);
-                        current = -1;
-                    }
-                }
-            }
-            if (current >= 0) nums.Add((int)current);
-
-            if (nums.Count == 0) return string.Empty;
-            while (nums.Count < 3) nums.Add(0);
-            if (nums.Count > 4) nums = nums.GetRange(0, 4);
-            if (nums.Count == 3) nums.Add(0);
-            return string.Join('.', nums);
-        }
-        catch
-        {
-            return string.Empty;
-        }
+        return Services.LauncherBuilder.MakeSafeFileVersion(raw);
     }
 
     private static bool IsNumericVersion(string? v)
     {
-        if (string.IsNullOrWhiteSpace(v)) return false;
-        // 1 to 4 numeric parts
-        return System.Text.RegularExpressions.Regex.IsMatch(v, "^\\d+(?:\\.\\d+){1,3}$");
+        return Services.LauncherBuilder.IsNumericVersion(v);
     }
 
     private void BtnCopyStatus_Click(object sender, RoutedEventArgs e)
